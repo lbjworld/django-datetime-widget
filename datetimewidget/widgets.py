@@ -37,7 +37,7 @@ supported_languages = set([
     'sk', 'sl', 'sv', 'sw',
     'th', 'tr',
     'ua', 'uk',
-    'zh-CN', 'zh-TW',
+    'zh-Hans', 'zh-TW',
     ])
 
 
@@ -116,7 +116,9 @@ BOOTSTRAP_INPUT_TEMPLATE = {
            <span class="input-group-addon"><span class="glyphicon %(glyphicon)s"></span></span>
        </div>
        <script type="text/javascript">
-           $("#%(id)s").datetimepicker({%(options)s}).find('input').addClass("form-control");
+           $(function () {
+               $("#%(id)s").datetimepicker({%(options)s}).find('input').addClass("form-control");
+           });
        </script>
        """
        }
@@ -127,27 +129,46 @@ CLEAR_BTN_TEMPLATE = {2: """<span class="add-on"><i class="icon-remove"></i></sp
 
 quoted_options = set([
     'format',
-    'startDate',
-    'endDate',
-    'startView',
-    'minView',
-    'maxView',
-    'todayBtn',
-    'language',
-    'pickerPosition',
-    'viewSelect',
-    'initialDate',
-    'weekStart',
-    'minuteStep'
+    'defaultDate',
+    'disabledDates',
+    'enabledDates',
+    'useCurrent',
+    'icons',
+    'viewMode',  # Accepts: 'decades','years','months','days'
+    'locale',
     'daysOfWeekDisabled',
+    'dayViewHeaderFormat',
+    'stepping',
+    'minDate',
+    'maxDate',
+    'toolbarPlacement',  # Accepts: 'default', 'top', 'bottom'
+    'widgetPositioning',
+    'widgetParent',
+    'tooltips',
     ])
 
 # to traslate boolean object to javascript
 quoted_bool_options = set([
-    'autoclose',
-    'todayHighlight',
-    'showMeridian',
-    'clearBtn',
+    'useCurrent',
+    'inline',
+    'sideBySide',
+    'extraFormats',
+    'collapse',
+    'useStrict',
+    'calendarWeeks',
+    'showTodayButton',
+    'showClear',
+    'showClose',
+    'keepOpen',
+    'keepInvalid',
+    'debug',
+    'ignoreReadonly',
+    'disabledTimeIntervals',
+    'allowInputToggle',
+    'focusOnShow',
+    'enabledHours',
+    'disabledHours',
+    'viewDate',
     ])
 
 
@@ -171,13 +192,7 @@ class PickerWidgetMixin(object):
     format_name = None
     glyphicon = None
 
-    def __init__(self, attrs=None, options=None, usel10n=None, bootstrap_version=None):
-
-        if bootstrap_version in [2,3]:
-            self.bootstrap_version = bootstrap_version
-        else:
-            # default 2 to mantain support to old implemetation of django-datetime-widget
-            self.bootstrap_version = 2
+    def __init__(self, attrs=None, options=None, usel10n=None, bootstrap_version=3):
 
         if attrs is None:
             attrs = {'readonly': ''}
@@ -205,7 +220,7 @@ class PickerWidgetMixin(object):
                 )
 
             # Set the local language
-            self.options['language'] = get_supported_language(get_language())
+            self.options['locale'] = get_supported_language(get_language())
 
         else:
 
@@ -224,7 +239,7 @@ class PickerWidgetMixin(object):
         rendered_widget = super(PickerWidgetMixin, self).render(name, value, final_attrs)
 
         #if not set, autoclose have to be true.
-        self.options.setdefault('autoclose', True)
+        self.options.setdefault('keepOpen', False)
 
         # Build javascript options out of python dictionary
         options_list = []
@@ -236,7 +251,7 @@ class PickerWidgetMixin(object):
         # Use provided id or generate hex to avoid collisions in document
         id = final_attrs.get('id', uuid.uuid4().hex)
 
-        clearBtn = quote('clearBtn', self.options.get('clearBtn', 'true')) == 'true'
+        clearBtn = quote('showClear', self.options.get('showClear', 'true')) == 'true'
 
         return mark_safe(
             BOOTSTRAP_INPUT_TEMPLATE[self.bootstrap_version]
@@ -253,7 +268,7 @@ class PickerWidgetMixin(object):
 
         js = ["js/bootstrap-datetimepicker.js"]
 
-        language = self.options.get('language', 'en')
+        language = self.options.get('locale', 'en')
         if language != 'en':
             js.append("js/locales/bootstrap-datetimepicker.%s.js" % language)
 
