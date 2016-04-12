@@ -102,17 +102,16 @@ Basic Configuration
                 'datetime': DateTimeWidget(attrs={'id':"yourdatetimeid"}, usel10n = True, bootstrap_version=3)
             }
 
-#. Download `twitter bootstrap <http://getbootstrap.com/>`_  to your static file folder.
-
-#. Add in your form template links to jquery, bootstrap and form.media::
+#. Add in your form template links to jquery, bootstrap::
 
     <head>
     ....
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-        <link href="{{ STATIC_URL }}css/bootstrap.css" rel="stylesheet" type="text/css"/>
-        <script src="{{ STATIC_URL }}js/bootstrap.js"></script>
-        {{ form.media }}
-
+        <script src="https://staticfile.qnssl.com/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script>
+        <script src="https://staticfile.qnssl.com/moment.js/2.10.6/moment-with-locales.min.js"></script>
+        <script src="https://staticfile.qnssl.com/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
+        <link rel="stylesheet" href="https://staticfile.qnssl.com/twitter-bootstrap/3.3.6/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://staticfile.qnssl.com/twitter-bootstrap/3.3.6/css/bootstrap-theme.min.css">
     ....
     </head>
     <body>

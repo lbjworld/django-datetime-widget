@@ -37,7 +37,7 @@ supported_languages = set([
     'sk', 'sl', 'sv', 'sw',
     'th', 'tr',
     'ua', 'uk',
-    'zh-Hans', 'zh-TW',
+    'zh-CN', 'zh-TW',
     ])
 
 
@@ -68,30 +68,31 @@ def get_supported_language(language_country_code):
     return 'en'
 
 
+# refer to:
+#  - https://docs.python.org/2/library/datetime.html
+#  - http://momentjs.com/docs/#/displaying/format/
 dateConversiontoPython = {
-    'P': '%p',
-    'ss': '%S',
-    'ii': '%M',
-    'hh': '%H',
-    'HH': '%I',
-    'dd': '%d',
-    'mm': '%m',
-    'yy': '%y',
-    'yyyy': '%Y',
+    'ss': '%S', # second
+    'mm': '%M', # minute
+    'HH': '%H', # 01-23 hour
+    'hh': '%I', # 01-12 hour
+    'DD': '%d', # day
+    'MM': '%m', # month
+    'YY': '%y', # year
+    'YYYY': '%Y', # year
 }
 
 toPython_re = re.compile(r'\b(' + '|'.join(dateConversiontoPython.keys()) + r')\b')
 
 
 dateConversiontoJavascript = {
-    '%M': 'ii',
-    '%m': 'mm',
-    '%I': 'HH',
-    '%H': 'hh',
-    '%d': 'dd',
-    '%Y': 'yyyy',
-    '%y': 'yy',
-    '%p': 'P',
+    '%M': 'mm',
+    '%m': 'MM',
+    '%I': 'hh',
+    '%H': 'HH',
+    '%d': 'DD',
+    '%Y': 'YYYY',
+    '%y': 'YY',
     '%S': 'ss'
 }
 
@@ -194,8 +195,14 @@ class PickerWidgetMixin(object):
 
     def __init__(self, attrs=None, options=None, usel10n=None, bootstrap_version=3):
 
+        if bootstrap_version in [2,3]:
+            self.bootstrap_version = bootstrap_version
+        else:
+            # default 2 to mantain support to old implemetation of django-datetime-widget
+            self.bootstrap_version = 3
+
         if attrs is None:
-            attrs = {'readonly': ''}
+            attrs = {}
 
         self.options = options
 
@@ -297,7 +304,7 @@ class DateTimeWidget(PickerWidgetMixin, DateTimeInput):
             options = {}
 
         # Set the default options to show only the datepicker object
-        options['format'] = options.get('format', 'dd/mm/yyyy hh:ii')
+        options['format'] = options.get('format', 'DD/MM/YYYY HH:mm')
 
         super(DateTimeWidget, self).__init__(attrs, options, usel10n, bootstrap_version)
 
@@ -317,9 +324,8 @@ class DateWidget(PickerWidgetMixin, DateInput):
             options = {}
 
         # Set the default options to show only the datepicker object
-        options['startView'] = options.get('startView', 2)
-        options['minView'] = options.get('minView', 2)
-        options['format'] = options.get('format', 'dd/mm/yyyy')
+        options['viewMode'] = options.get('viewMode', 'years')
+        options['format'] = options.get('format', 'DD/MM/YYYY')
 
         super(DateWidget, self).__init__(attrs, options, usel10n, bootstrap_version)
 
@@ -339,10 +345,7 @@ class TimeWidget(PickerWidgetMixin, TimeInput):
             options = {}
 
         # Set the default options to show only the timepicker object
-        options['startView'] = options.get('startView', 1)
-        options['minView'] = options.get('minView', 0)
-        options['maxView'] = options.get('maxView', 1)
-        options['format'] = options.get('format', 'hh:ii')
+        options['format'] = options.get('format', 'HH:mm')
 
         super(TimeWidget, self).__init__(attrs, options, usel10n, bootstrap_version)
 
